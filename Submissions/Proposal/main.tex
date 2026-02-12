@@ -42,40 +42,49 @@ Data will be generated according to the model
 \[
 y = f(x) + \varepsilon,
 \]
-where $f(x)$ is a known nonlinear regression function and $\varepsilon$ is a random noise term. Knowing the true data-generating process allows us to estimate bias and variance using repeated Monte Carlo experiments.
+where $f(x)$ is a fixed nonlinear regression function and
+\[
+\varepsilon \sim \mathcal{N}(0, \sigma^2).
+\]
+The parameter $\sigma$ represents the \emph{standard deviation} of the Gaussian noise and will be referred to as the
+\emph{noise level} throughout the project.
 
 % ---------------------------
 \section{Project Details}
-Monte Carlo simulation will be used to repeatedly generate independent training and test datasets. Regression models of varying complexity will be fitted to the training data and evaluated on test data.
+Monte Carlo simulation will be used to repeatedly generate independent training and test datasets. For each Monte Carlo
+replication, we will:
+\begin{enumerate}
+    \item generate a training dataset and an independent test dataset from the data-generating process,
+    \item fit polynomial regression to the training data, and
+    \item evaluate predictive performance on the test data.
+\end{enumerate}
 
-The following regression methods will be considered:
+Model complexity will be controlled by the polynomial degree $d$. For each degree $d$, we will compute:
 \begin{itemize}
-    \item Polynomial regression, with model complexity controlled by the polynomial degree
-    \item $k$-nearest neighbor (kNN) regression, with complexity controlled by the number of neighbors $k$ 
+    \item training mean squared error (MSE),
+    \item test mean squared error (MSE),
+    \item Monte Carlo estimates of bias$^2$ and variance (based on repeated fits across simulated datasets).
 \end{itemize}
 
-For each model and complexity level, we will compute:
-\begin{itemize}
-    \item Training mean squared error (MSE)
-    \item Test mean squared error (MSE)
-    \item Monte Carlo estimates of bias$^2$ and variance
-\end{itemize}
+Bias and variance will be estimated by comparing the fitted model's predictions to the true regression function $f(x)$
+across a grid of input values, and summarizing the systematic deviation (bias) and variability (variance) across Monte
+Carlo replications.
 
-Bias and variance will be estimated by repeatedly fitting models to independently generated datasets and examining the systematic deviation and variability of predictions relative to the true regression function. Results will be summarized across different sample sizes, noise levels, and model complexities to illustrate overfitting and underfitting behavior.
 
 % ---------------------------
 \section{User Inputs (Shiny Components)}
-The R Shiny application will include at least the following interactive inputs:
+Users will be able to modify at least the following interactive inputs in the R Shiny app:
 \begin{enumerate}
-    \item Sample size for the simulated dataset
-    \item Noise level of the error term $\varepsilon$
-    \item Random seed for reproducibility
-    \item Choice of regression model (polynomial regression or kNN regression)
-    \item Model complexity parameter (polynomial degree or number of neighbors $k$)
-    \item Option to download simulated data or results as a \texttt{.csv} file
+    \item Random seed (for reproducibility)
+    \item Sample size $n$
+    \item Noise level $\sigma$ (standard deviation of $\varepsilon \sim \mathcal{N}(0, \sigma^2)$)
+    \item Polynomial degree $d$
+    \item Choice of true function $f(x)$ (e.g., smooth vs.\ more wiggly)
+    \item Plot customization options (e.g., colour/theme toggles)
+    \item Option to download the simulated dataset and/or summary results as a \texttt{.csv} file
 \end{enumerate}
 
-Additional inputs may be included to enhance interactivity, such as plot customization options or the ability to compare multiple model complexities simultaneously.
+
 
 % ---------------------------
 \section{Generative AI Usage Statement}
