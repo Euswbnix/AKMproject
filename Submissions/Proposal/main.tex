@@ -79,7 +79,12 @@ Users will be able to modify at least the following interactive inputs in the R 
     \item Sample size $n$
     \item Noise level $\sigma$ (standard deviation of $\varepsilon \sim \mathcal{N}(0, \sigma^2)$)
     \item Polynomial degree $d$
-    \item Choice of true function $f(x)$ (e.g., smooth vs.\ more wiggly)
+    \item Choice of true function $f(x)$. Users will select from a set of pre-defined functions to vary the complexity of the target:
+    \begin{itemize}
+        \item \textbf{Smooth:} $f(x) = \sin(x)$ (low frequency)
+        \item \textbf{Wiggly:} $f(x) = \sin(x) + 2\cos(5x)$ (high frequency)
+        \item \textbf{Localized:} $f(x) = \exp(-x^2)$ (Gaussian bump)
+    \end{itemize}
     \item Plot customization options (e.g., colour/theme toggles)
     \item Option to download the simulated dataset and/or summary results as a \texttt{.csv} file
 \end{enumerate}
