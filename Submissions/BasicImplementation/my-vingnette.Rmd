@@ -1,0 +1,205 @@
+---
+title: "AKMproject Vignette"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Example Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: bibliography.bib
+nocite: "@*"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+knitr::opts_chunk$set(fig.width=7, fig.height=6) 
+```
+
+```{r setup}
+library(AKMproject)
+```
+
+This vignette merely serves as an example on how to use the three functions within the `sta380package.example` package for simulating the bivariate Gaussian distribution using three introductory MCMC methods:
+
+-   independent MH (Metropolis–Hastings) `sta380package.example::rbivariate.mh_ind()`,
+
+-   random walk MH `sta380package.example::rbivariate.rwmh()`, and
+
+-   the Gibbs sampler `sta380package.example::gibbs_sampler()`.
+
+In particular, the following examples are for generating random vectors from the bivariate Gaussian distribution with $\mu_{1} = \mu_{2} = 0$, $\sigma_{1} = \sigma_{2} = 1$ and correlation $\rho = 0.7$.
+
+We also include examples on what the resultant samples appear to be, and comparisons between the three functions.
+
+# Independent Metropolis–Hastings
+
+## Generating Samples
+
+```{r}
+set.seed(1)
+N <- 10000
+burn <- 100
+rho <- 0.7
+sigma_matrix <- matrix(c(1, rho, rho, 1), nrow = 2, ncol = 2)
+mu_vec <- c(0, 0)
+test_pt1 = rmvnorm(n = 1, mean = c(0, 0), sigma = sigma_matrix)
+sim_attempt1 = rbivariate.mh_ind(N, burn, test_pt1, sigma_matrix, mu_vec)
+```
+
+## Scatterplot
+
+```{r}
+par(mfcol=c(1,1))
+plot(sim_attempt1[,1], sim_attempt1[,2],
+     xlab = "Variable 1",
+     ylab = "Variable 2",
+     main = "Scatter plot of the simulated bivariate Gaussian samples obtained 
+     via the independence Metropolis–Hastings algorithm.")
+```
+
+## Checking Normality Assumptions
+
+```{r}
+par(mfcol=c(2,2))
+xx = seq(-4,4,by=0.01)
+hist(sim_attempt1[,1], breaks=100, freq=FALSE, 
+     main = "Histogram of Variable 1",
+     xlab = "Variable 1",
+     col = "#6699FF", border = "white")
+lines(xx, dnorm(xx), col="red", lwd = 2, lty = 2)
+qqnorm(sim_attempt1[,1], main = "Normal Q–Q Plot for Variable 1",
+       col = "#6699FF")
+qqline(sim_attempt1[,1], col="red", lwd = 2, lty = 2)
+
+hist(sim_attempt1[,2], breaks=100, freq=FALSE,
+     main = "Histogram of Variable 2",
+     xlab = "Variable 2",
+     col = "#05DEB2", border = "white")
+lines(xx, dnorm(xx), col="red", lwd = 2, lty = 2)
+qqnorm(sim_attempt1[,2], main = "Normal Q–Q Plot for Variable 2",
+       col = "#05DEB2")
+qqline(sim_attempt1[,2], col="red", lwd = 2, lty = 2)
+```
+
+# Random Walk Metropolis–Hastings
+
+## Generating Samples
+
+```{r}
+set.seed(1)
+N <- 10000
+burn <- 100
+rho <- 0.7
+sigma_matrix <- matrix(c(1, rho, rho, 1), nrow = 2, ncol = 2)
+mu_vec <- c(0, 0)
+test_pt1 <- rmvnorm(n = 1, mean = c(0, 0), sigma = sigma_matrix)
+sim_attempt2 <- rbivariate.rwmh(N, burn, test_pt1, sigma_matrix, mu_vec)
+```
+
+## Scatterplot
+
+```{r}
+par(mfcol=c(1,1))
+plot(sim_attempt2[,1], sim_attempt2[,2],
+     xlab = "Variable 1",
+     ylab = "Variable 2",
+     main = "Scatter plot of the simulated bivariate Gaussian samples obtained 
+     via the Random Walk Metropolis–Hastings algorithm.")
+```
+
+## Checking Normality Assumptions
+
+```{r}
+par(mfcol=c(2,2))
+xx = seq(-4,4,by=0.01)
+hist(sim_attempt2[,1], breaks=100, freq=FALSE, 
+     main = "Histogram of Variable 1",
+     xlab = "Variable 1",
+     col = "#6699FF", border = "white")
+lines(xx, dnorm(xx), col="red", lwd = 2, lty = 2)
+qqnorm(sim_attempt2[,1], main = "Normal Q–Q Plot for Variable 1",
+       col = "#6699FF")
+qqline(sim_attempt2[,1], col="red", lwd = 2, lty = 2)
+
+hist(sim_attempt2[,2], breaks=100, freq=FALSE,
+     main = "Histogram of Variable 2",
+     xlab = "Variable 2",
+     col = "#05DEB2", border = "white")
+lines(xx, dnorm(xx), col="red", lwd = 2, lty = 2)
+qqnorm(sim_attempt2[,2], main = "Normal Q–Q Plot for Variable 2",
+       col = "#05DEB2")
+qqline(sim_attempt2[,2], col="red", lwd = 2, lty = 2)
+```
+
+# Gibbs Sampler
+
+## Generating Samples
+
+```{r}
+set.seed(1)
+N <- 10000
+burn <- 100
+rho <- 0.7
+sigma_matrix <- matrix(c(1, rho, rho, 1), nrow = 2, ncol = 2)
+mu_vec <- c(0, 0)
+test_pt1 <- rmvnorm(n = 1, mean = c(0, 0), sigma = sigma_matrix)
+sim_attempt3 <- gibbs_sampler(N, burn, test_pt1, sigma_matrix, mu_vec)
+```
+
+## Scatterplot
+
+```{r}
+par(mfcol=c(1,1))
+plot(sim_attempt3[,1], sim_attempt3[,2],
+     xlab = "Variable 1",
+     ylab = "Variable 2",
+     main = "Scatter plot of the simulated bivariate Gaussian samples obtained 
+     via the Random Walk Metropolis–Hastings algorithm.")
+```
+
+## Checking Normality Assumptions
+
+```{r}
+par(mfcol=c(2,2))
+xx = seq(-4,4,by=0.01)
+hist(sim_attempt3[,1], breaks=100, freq=FALSE, 
+     main = "Histogram of Variable 1",
+     xlab = "Variable 1",
+     col = "#6699FF", border = "white")
+lines(xx, dnorm(xx), col="red", lwd = 2, lty = 2)
+qqnorm(sim_attempt3[,1], main = "Normal Q–Q Plot for Variable 1",
+       col = "#6699FF")
+qqline(sim_attempt3[,1], col="red", lwd = 2, lty = 2)
+
+hist(sim_attempt3[,2], breaks=100, freq=FALSE,
+     main = "Histogram of Variable 2",
+     xlab = "Variable 2",
+     col = "#05DEB2", border = "white")
+lines(xx, dnorm(xx), col="red", lwd = 2, lty = 2)
+qqnorm(sim_attempt3[,2], main = "Normal Q–Q Plot for Variable 2",
+       col = "#05DEB2")
+qqline(sim_attempt3[,2], col="red", lwd = 2, lty = 2)
+```
+
+# Comparison of All Three
+
+Looking at the results from all three samples, it appears that the Gibbs sampler gives the closest result to what we tried to simulate (although this has not been statistically verified.)
+
+```{r}
+sims <- list(sim_attempt1, sim_attempt2, sim_attempt3)
+
+# Means
+sapply(sims, function(m) mean(m[,1]))
+
+# Standard Deviations
+sapply(sims, function(m) sd(m[,1]))
+
+# Correlations
+sapply(sims, function(m) cor(m[,1], m[,2]))
+```
+
+# Bibliography
+
+Note: you should have more citations than me; I purposely excluded ones that you should also use to prevent you from copying and pasting my work.
