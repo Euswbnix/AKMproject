@@ -4,7 +4,7 @@ source("function.R")
 
 test_f <- function(x) sin(x)
 #########################################
-# Independent generate data Example     #
+# Tests for generate_data               #
 #########################################
 test_that("generate_data returns data.frame with correct columns and size", {
   set.seed(114)
@@ -17,6 +17,9 @@ test_that("generate_data returns data.frame with correct columns and size", {
 })
 
 
+#########################################
+# Tests for fit_polynomial              #
+#########################################
 test_that("fit_polynomial returns an lm object with correct degrees", {
   set.seed(114)
   dat <- generate_data(n = 50, sigma = 0.5, f = test_f)
@@ -26,6 +29,9 @@ test_that("fit_polynomial returns an lm object with correct degrees", {
 })
 
 
+#########################################
+# Tests for compute_mse                 #
+#########################################
 test_that("compute_mse calculates mean squared error correctly", {
   dummy_data <- data.frame(x = 1:4, y = c(2, 4, 6, 8))
   perfect_mod <- lm(y ~ x, data = dummy_data)
@@ -34,6 +40,9 @@ test_that("compute_mse calculates mean squared error correctly", {
 })
 
 
+#########################################
+# Tests for monte_carlo_bias_variance   #
+#########################################
 test_that("monte_carlo_bias_variance returns expected list structure and numeric values", {
   set.seed(114)
   res <- monte_carlo_bias_variance(B = 5, n = 20, sigma = 0.5, degree = 2, f = test_f)
