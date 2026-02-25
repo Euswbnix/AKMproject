@@ -1,8 +1,8 @@
 ---
-title: "AKMproject Vignette"
+title: "Monte Carlo Study of the Bias-Variance Tradeoff"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Example Vignette}
+  %\VignetteIndexEntry{Monte Carlo Study of the Bias-Variance Tradeoff}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: bibliography.bib
@@ -12,194 +12,87 @@ nocite: "@*"
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7, 
+  fig.height = 5
 )
-knitr::opts_chunk$set(fig.width=7, fig.height=6) 
 ```
+
+## Introduction
+
+This vignette demonstrates the core functions used for our Monte Carlo study of the bias-variance tradeoff in regression models. Currently, these functions are sourced directly from our `function.R` script.
 
 ```{r setup}
-library(AKMproject)
+# Load our core functions
+source("function.R")
 ```
 
-This vignette merely serves as an example on how to use the three functions within the `sta380package.example` package for simulating the bivariate Gaussian distribution using three introductory MCMC methods:
+## 1. Generating Data
 
--   independent MH (Metropolis–Hastings) `sta380package.example::rbivariate.mh_ind()`,
+We start by generating a synthetic dataset. Our data-generating process relies on a true underlying function $f(x)$ and adds Gaussian noise $\epsilon \sim \mathcal{N}(0, \sigma^2)$.
 
--   random walk MH `sta380package.example::rbivariate.rwmh()`, and
+```{r generate_data}
+set.seed(42)
+# Define the true function (smooth version: sin(x))
+f_true <- true_function("smooth")
 
--   the Gibbs sampler `sta380package.example::gibbs_sampler()`.
+# Generate 100 observations with noise level sigma = 0.5
+train_data <- generate_data(n = 100, sigma = 0.5, f = f_true)
 
-In particular, the following examples are for generating random vectors from the bivariate Gaussian distribution with $\mu_{1} = \mu_{2} = 0$, $\sigma_{1} = \sigma_{2} = 1$ and correlation $\rho = 0.7$.
+# Plot the generated data against the true function
+x_seq <- seq(-2, 2, length.out = 200)
+y_true <- f_true(x_seq)
 
-We also include examples on what the resultant samples appear to be, and comparisons between the three functions.
-
-# Independent Metropolis–Hastings
-
-## Generating Samples
-
-```{r}
-set.seed(1)
-N <- 10000
-burn <- 100
-rho <- 0.7
-sigma_matrix <- matrix(c(1, rho, rho, 1), nrow = 2, ncol = 2)
-mu_vec <- c(0, 0)
-test_pt1 = rmvnorm(n = 1, mean = c(0, 0), sigma = sigma_matrix)
-sim_attempt1 = rbivariate.mh_ind(N, burn, test_pt1, sigma_matrix, mu_vec)
+plot(train_data$x, train_data$y, pch = 16, col = "darkgray",
+     xlab = "x", ylab = "y", main = "Simulated Data vs. True Function")
+lines(x_seq, y_true, col = "blue", lwd = 2)
+legend("topright", legend = c("True f(x)", "Observed Data"), 
+       col = c("blue", "darkgray"), lwd = c(2, NA), pch = c(NA, 16))
 ```
 
-## Scatterplot
+## 2. Fitting Polynomial Regression
 
-```{r}
-par(mfcol=c(1,1))
-plot(sim_attempt1[,1], sim_attempt1[,2],
-     xlab = "Variable 1",
-     ylab = "Variable 2",
-     main = "Scatter plot of the simulated bivariate Gaussian samples obtained 
-     via the independence Metropolis–Hastings algorithm.")
+Next, we demonstrate how to fit a polynomial regression model to this training data. We will fit a degree-3 polynomial.
+
+```{r fit_model}
+# Fit a degree 3 polynomial
+model_deg3 <- fit_polynomial(data = train_data, degree = 3)
+
+# Predict over the grid to visualize the fit
+y_pred_deg3 <- predict(model_deg3, newdata = data.frame(x = x_seq))
+
+plot(train_data$x, train_data$y, pch = 16, col = "darkgray",
+     xlab = "x", ylab = "y", main = "Polynomial Fit (Degree 3)")
+lines(x_seq, y_true, col = "blue", lwd = 2, lty = 2)
+lines(x_seq, y_pred_deg3, col = "red", lwd = 2)
+legend("topright", legend = c("True f(x)", "Degree 3 Fit"), 
+       col = c("blue", "red"), lty = c(2, 1), lwd = 2)
 ```
 
-## Checking Normality Assumptions
+## 3. Evaluating Performance
 
-```{r}
-par(mfcol=c(2,2))
-xx = seq(-4,4,by=0.01)
-hist(sim_attempt1[,1], breaks=100, freq=FALSE, 
-     main = "Histogram of Variable 1",
-     xlab = "Variable 1",
-     col = "#6699FF", border = "white")
-lines(xx, dnorm(xx), col="red", lwd = 2, lty = 2)
-qqnorm(sim_attempt1[,1], main = "Normal Q–Q Plot for Variable 1",
-       col = "#6699FF")
-qqline(sim_attempt1[,1], col="red", lwd = 2, lty = 2)
+We can compute the Mean Squared Error (MSE) of our fitted model on the training set.
 
-hist(sim_attempt1[,2], breaks=100, freq=FALSE,
-     main = "Histogram of Variable 2",
-     xlab = "Variable 2",
-     col = "#05DEB2", border = "white")
-lines(xx, dnorm(xx), col="red", lwd = 2, lty = 2)
-qqnorm(sim_attempt1[,2], main = "Normal Q–Q Plot for Variable 2",
-       col = "#05DEB2")
-qqline(sim_attempt1[,2], col="red", lwd = 2, lty = 2)
+```{r compute_mse}
+train_mse <- compute_mse(model = model_deg3, data = train_data)
+cat("Training MSE for Degree 3:", round(train_mse, 4), "\n")
 ```
 
-# Random Walk Metropolis–Hastings
+## 4. Monte Carlo Simulation
 
-## Generating Samples
+Finally, we run a small-scale Monte Carlo simulation to estimate the bias squared and variance for a given polynomial degree. *Note: In practice, B should be much larger (e.g., 500 or 1000), but we use B = 50 here for demonstration speed.*
 
-```{r}
-set.seed(1)
-N <- 10000
-burn <- 100
-rho <- 0.7
-sigma_matrix <- matrix(c(1, rho, rho, 1), nrow = 2, ncol = 2)
-mu_vec <- c(0, 0)
-test_pt1 <- rmvnorm(n = 1, mean = c(0, 0), sigma = sigma_matrix)
-sim_attempt2 <- rbivariate.rwmh(N, burn, test_pt1, sigma_matrix, mu_vec)
+```{r mc_simulation}
+set.seed(42)
+mc_results <- monte_carlo_bias_variance(B = 50, n = 100, sigma = 0.5, 
+                                        degree = 3, f = f_true)
+
+cat("Estimated Bias Squared:", round(mc_results$bias2, 4), "\n")
+cat("Estimated Variance:", round(mc_results$variance, 4), "\n")
 ```
 
-## Scatterplot
+## Generative AI Usage Statement
 
-```{r}
-par(mfcol=c(1,1))
-plot(sim_attempt2[,1], sim_attempt2[,2],
-     xlab = "Variable 1",
-     ylab = "Variable 2",
-     main = "Scatter plot of the simulated bivariate Gaussian samples obtained 
-     via the Random Walk Metropolis–Hastings algorithm.")
-```
+We used generative AI tools to assist in writing the LaTeX code for the proposal. All statistical methods, project design decisions, and final content were reviewed and validated by team members. We did not use any generative AI tools to generate results, simulations, or analyses.
 
-## Checking Normality Assumptions
-
-```{r}
-par(mfcol=c(2,2))
-xx = seq(-4,4,by=0.01)
-hist(sim_attempt2[,1], breaks=100, freq=FALSE, 
-     main = "Histogram of Variable 1",
-     xlab = "Variable 1",
-     col = "#6699FF", border = "white")
-lines(xx, dnorm(xx), col="red", lwd = 2, lty = 2)
-qqnorm(sim_attempt2[,1], main = "Normal Q–Q Plot for Variable 1",
-       col = "#6699FF")
-qqline(sim_attempt2[,1], col="red", lwd = 2, lty = 2)
-
-hist(sim_attempt2[,2], breaks=100, freq=FALSE,
-     main = "Histogram of Variable 2",
-     xlab = "Variable 2",
-     col = "#05DEB2", border = "white")
-lines(xx, dnorm(xx), col="red", lwd = 2, lty = 2)
-qqnorm(sim_attempt2[,2], main = "Normal Q–Q Plot for Variable 2",
-       col = "#05DEB2")
-qqline(sim_attempt2[,2], col="red", lwd = 2, lty = 2)
-```
-
-# Gibbs Sampler
-
-## Generating Samples
-
-```{r}
-set.seed(1)
-N <- 10000
-burn <- 100
-rho <- 0.7
-sigma_matrix <- matrix(c(1, rho, rho, 1), nrow = 2, ncol = 2)
-mu_vec <- c(0, 0)
-test_pt1 <- rmvnorm(n = 1, mean = c(0, 0), sigma = sigma_matrix)
-sim_attempt3 <- gibbs_sampler(N, burn, test_pt1, sigma_matrix, mu_vec)
-```
-
-## Scatterplot
-
-```{r}
-par(mfcol=c(1,1))
-plot(sim_attempt3[,1], sim_attempt3[,2],
-     xlab = "Variable 1",
-     ylab = "Variable 2",
-     main = "Scatter plot of the simulated bivariate Gaussian samples obtained 
-     via the Random Walk Metropolis–Hastings algorithm.")
-```
-
-## Checking Normality Assumptions
-
-```{r}
-par(mfcol=c(2,2))
-xx = seq(-4,4,by=0.01)
-hist(sim_attempt3[,1], breaks=100, freq=FALSE, 
-     main = "Histogram of Variable 1",
-     xlab = "Variable 1",
-     col = "#6699FF", border = "white")
-lines(xx, dnorm(xx), col="red", lwd = 2, lty = 2)
-qqnorm(sim_attempt3[,1], main = "Normal Q–Q Plot for Variable 1",
-       col = "#6699FF")
-qqline(sim_attempt3[,1], col="red", lwd = 2, lty = 2)
-
-hist(sim_attempt3[,2], breaks=100, freq=FALSE,
-     main = "Histogram of Variable 2",
-     xlab = "Variable 2",
-     col = "#05DEB2", border = "white")
-lines(xx, dnorm(xx), col="red", lwd = 2, lty = 2)
-qqnorm(sim_attempt3[,2], main = "Normal Q–Q Plot for Variable 2",
-       col = "#05DEB2")
-qqline(sim_attempt3[,2], col="red", lwd = 2, lty = 2)
-```
-
-# Comparison of All Three
-
-Looking at the results from all three samples, it appears that the Gibbs sampler gives the closest result to what we tried to simulate (although this has not been statistically verified.)
-
-```{r}
-sims <- list(sim_attempt1, sim_attempt2, sim_attempt3)
-
-# Means
-sapply(sims, function(m) mean(m[,1]))
-
-# Standard Deviations
-sapply(sims, function(m) sd(m[,1]))
-
-# Correlations
-sapply(sims, function(m) cor(m[,1], m[,2]))
-```
-
-# Bibliography
-
-Note: you should have more citations than me; I purposely excluded ones that you should also use to prevent you from copying and pasting my work.
+## References
