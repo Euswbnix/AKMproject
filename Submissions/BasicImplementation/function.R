@@ -4,8 +4,8 @@
 #' @param type A character string specifying the function type: "smooth" or "wiggly".
 #' @return A function that takes a numeric vector x and returns a numeric vector.
 #' @export
-true_function <- function(type = "smooth") {
-  if (type == "smooth") {
+true_function <- function(type = c("smooth", "wiggly")) {
+  if (match.arg(type) == "smooth") {
     return(function(x) sin(x))
   } else {
     return(function(x) sin(x) + 0.5 * cos(3 * x))
