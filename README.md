@@ -2,7 +2,7 @@
 
 Current project progress: Package Compiling is now complete.
 
-`devtools::check()`has been successfully tested on Windows 11 and macOS 26 without any Errors or Warnings.
+`devtools::check()`has been successfully tested on Windows 11, macOS 26 and Ubuntu 24.04 LTS without any Errors or Warnings.
 
 
 
