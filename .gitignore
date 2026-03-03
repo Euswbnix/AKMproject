@@ -4,5 +4,6 @@
 .Rhistory
 .RData
 .Ruserdata
+.Rbuildignore
 /doc/
 /Meta/
