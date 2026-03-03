@@ -1,0 +1,98 @@
+---
+title: "Monte Carlo Study of the Bias-Variance Tradeoff"
+output: pdf_document
+vignette: >
+  %\VignetteIndexEntry{Monte Carlo Study of the Bias-Variance Tradeoff}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: bibliography.bib
+nocite: "@*"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7, 
+  fig.height = 5
+)
+```
+
+## Introduction
+
+This vignette demonstrates the core functions used for our Monte Carlo study of the bias-variance tradeoff in regression models. Currently, these functions are sourced directly from our `function.R` script.
+
+```{r setup}
+library(AKMProject)
+# Load our core functions
+```
+
+## 1. Generating Data
+
+We start by generating a synthetic dataset. Our data-generating process relies on a true underlying function $f(x)$ and adds Gaussian noise $\epsilon \sim \mathcal{N}(0, \sigma^2)$.
+
+```{r generate_data}
+set.seed(42)
+# Define the true function (smooth version: sin(x))
+f_true <- true_function("smooth")
+
+# Generate 100 observations with noise level sigma = 0.5
+train_data <- generate_data(n = 100, sigma = 0.5, f = f_true)
+
+# Plot the generated data against the true function
+x_seq <- seq(-2, 2, length.out = 200)
+y_true <- f_true(x_seq)
+
+plot(train_data$x, train_data$y, pch = 16, col = "darkgray",
+     xlab = "x", ylab = "y", main = "Simulated Data vs. True Function")
+lines(x_seq, y_true, col = "blue", lwd = 2)
+legend("topright", legend = c("True f(x)", "Observed Data"), 
+       col = c("blue", "darkgray"), lwd = c(2, NA), pch = c(NA, 16))
+```
+
+## 2. Fitting Polynomial Regression
+
+Next, we demonstrate how to fit a polynomial regression model to this training data. We will fit a degree-3 polynomial.
+
+```{r fit_model}
+# Fit a degree 3 polynomial
+model_deg3 <- fit_polynomial(data = train_data, degree = 3)
+
+# Predict over the grid to visualize the fit
+y_pred_deg3 <- predict(model_deg3, newdata = data.frame(x = x_seq))
+
+plot(train_data$x, train_data$y, pch = 16, col = "darkgray",
+     xlab = "x", ylab = "y", main = "Polynomial Fit (Degree 3)")
+lines(x_seq, y_true, col = "blue", lwd = 2, lty = 2)
+lines(x_seq, y_pred_deg3, col = "red", lwd = 2)
+legend("topright", legend = c("True f(x)", "Degree 3 Fit"), 
+       col = c("blue", "red"), lty = c(2, 1), lwd = 2)
+```
+
+## 3. Evaluating Performance
+
+We can compute the Mean Squared Error (MSE) of our fitted model on the training set.
+
+```{r compute_mse}
+train_mse <- compute_mse(model = model_deg3, data = train_data)
+cat("Training MSE for Degree 3:", round(train_mse, 4), "\n")
+```
+
+## 4. Monte Carlo Simulation
+
+Finally, we run a small-scale Monte Carlo simulation to estimate the bias squared and variance for a given polynomial degree. *Note: In practice, B should be much larger (e.g., 500 or 1000), but we use B = 50 here for demonstration speed.*
+
+```{r mc_simulation}
+set.seed(42)
+mc_results <- monte_carlo_bias_variance(B = 50, n = 100, sigma = 0.5, 
+                                        degree = 3, f = f_true)
+
+cat("Estimated Bias Squared:", round(mc_results$bias2, 4), "\n")
+cat("Estimated Variance:", round(mc_results$variance, 4), "\n")
+```
+
+## Generative AI Usage Statement
+
+We used generative AI tools to assist in writing the LaTeX code for the proposal. All statistical methods, project design decisions, and final content were reviewed and validated by team members. We did not use any generative AI tools to generate results, simulations, or analyses.
+
+## References
