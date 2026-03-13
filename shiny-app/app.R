@@ -1,55 +1,115 @@
+# app.R
+# Entry point for the STA380 Shiny application.
+# Sources all modular UI and server files, then calls shinyApp().
+
 library(shiny)
-library(bslib)
-library(shinycssloaders) #optional rn
 
-options(spinner.type = 8, spinner.color ="#6990EE")
+# ── Source modular files ────────────────────────────────────────────────────
+source("R/site-helper.R")
+source("R/ui-latex.R")
+source("R/ui-extra.R")
+source("R/ui-sim_input.R")
+source("R/mcmc_example.R")    # simulation engine (TRUE_F, run_mc_simulation, run_mc_sweep)
+source("server-plots.R")      # defines server()
 
-ui <- page_sidebar(
+# ── UI ──────────────────────────────────────────────────────────────────────
+ui <- navbarPage(
+  title = APP_TITLE,
+  id    = "navbar",
 
+  # Inject MathJax once for the whole app
+  header = latex_header(),
 
-  #theme
-  sidebar = sidebar(
-    #samplesize
-    selectInput(
+  # ── Tab 1: Simulation ────────────────────────────────────────────────────
+  tabPanel(
+    title = "Simulation",
+    icon  = icon("chart-line"),
 
-    ),
-    #noiselevel
-    selectInput(
+    sidebarLayout(
 
-    ),
-    #random seed
-    selectInput(
+      # Sidebar: all Section 4 inputs
+      sidebarPanel(
+        width = 3,
 
-    ),
-    #regression model choice (polynomial or kNN regression)
-    selectInput(
+        labelled_hr("Simulation Settings"),
+        sim_input_ui(),
 
-    ),
-    #Model complexity parameter (polynomail degree or number of neighbours k)
-    selectInput(
+        br(),
 
-    ),
-    #option to download simulated data (current)
-    downloadButton(
+        # Optional: Monte Carlo repetitions
+        labelled_hr("Advanced"),
+        sliderInput(
+          inputId = "mc_reps",
+          label   = paste0("MC Repetitions (B)"),
+          min     = MC_REPS_MIN,
+          max     = MC_REPS_MAX,
+          value   = MC_REPS_DEFAULT,
+          step    = 50
+        ),
+        helpText(
+          style = "font-size: 0.8em;",
+          "Higher B gives smoother bias/variance estimates but takes longer."
+        )
+      ),
 
+      # Main panel: metric summary + tabbed plot outputs
+      mainPanel(
+        width = 9,
+
+        results_header(),
+        bv_decomp_display(),
+
+        br(),
+
+        # Summary cards (Train MSE / Test MSE / Bias² / Variance)
+        metrics_row(),
+
+        br(),
+
+        # Plot tabs
+        tabsetPanel(
+          id = "plot_tabs",
+
+          tabPanel(
+            title = "Bias–Variance Curves",
+            icon  = icon("wave-square"),
+            br(),
+            plotOutput("plot_bv_curve", height = "420px"),
+            hr(),
+            helpText(
+              "Test MSE (red) = Bias² (green) + Variance (amber) + irreducible noise.",
+              "Training MSE (blue) decreases monotonically with model complexity."
+            )
+          ),
+
+          tabPanel(
+            title = "Prediction Spread",
+            icon  = icon("crosshairs"),
+            br(),
+            plotOutput("plot_pred_spread", height = "420px"),
+            hr(),
+            helpText(
+              "Each grey curve is a fitted model from one MC repetition.",
+              "The true function f(x) is shown in black."
+            )
+          ),
+
+          tabPanel(
+            title = "MSE Decomposition",
+            icon  = icon("table"),
+            br(),
+            tableOutput("table_mse"),
+            br(),
+            helpText("Values shown are averaged over all Monte Carlo repetitions.")
+          )
+        )
+      )
     )
-    #extras for later
-
-
   ),
-  #for specific selected inputs control
-  conditionalPanel(
 
-  ), #...
-
-
-
-
-  #outputs later
+  # ── Tab 2: About ─────────────────────────────────────────────────────────
+  about_tab()
 )
 
-server <- function(input, output, session){
-  source(file.path("server-plots.R"), local = TRUE)$ value
-}
-
-shinyApp(ui=ui, server=server)
+# ── Launch ──────────────────────────────────────────────────────────────────
+shinyApp(ui = ui, server = server)
