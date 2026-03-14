@@ -1,0 +1,25 @@
+---
+title: "Generative AI Usage Statement"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Generative AI Usage Statement}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+## Statement of Generative AI Usage
+
+For this milestone, generative AI (Gemini) was utilized to assist with the development of the R package and the associated Shiny application. Specifically, AI was used to:
+
+* Troubleshoot and debug relative path issues, particularly Windows-specific path configurations, when running the Shiny app locally and restructuring the package within the `Submissions` directory.
+* Assist with formatting and writing LaTeX code for the project proposal.
+* Review testing scripts and check file formatting requirements to ensure proper package structure.
+* Help resolve scoping conflicts between global environment objects and package functions during the Shiny app development.
+
+All core statistical logic, Monte Carlo simulations, and final code implementations were independently reviewed, tested, and integrated by the project team.
