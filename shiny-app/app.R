@@ -8,8 +8,8 @@ library(shiny)
 source("R/site-helper.R")
 source("R/ui-latex.R")
 source("R/ui-extra.R")
-source("R/ui-sim_input.R")
-source("R/mcmc_example.R")    # simulation engine (TRUE_F, run_mc_simulation, run_mc_sweep)
+source("R/ui-sim-input.R")
+source("R/mcmc.R")    # simulation engine (TRUE_F, run_mc_simulation, run_mc_sweep)
 source("server-plots.R")      # defines server()
 
 # ── UI ──────────────────────────────────────────────────────────────────────
