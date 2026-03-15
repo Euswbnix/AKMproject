@@ -40,11 +40,11 @@ ui <- navbarPage(
         labelled_hr("Advanced"),
         sliderInput(
           inputId = "mc_reps",
-          label   = paste0("MC Repetitions (B)"),
-          min     = MC_REPS_MIN,
-          max     = MC_REPS_MAX,
-          value   = MC_REPS_DEFAULT,
-          step    = 50
+          label = paste0("MC Repetitions (B)"),
+          min = MC_REPS_MIN,
+          max  = MC_REPS_MAX,
+          value = MC_REPS_DEFAULT,
+          step = 50
         ),
         helpText(
           style = "font-size: 0.8em;",
@@ -84,7 +84,7 @@ ui <- navbarPage(
 
           tabPanel(
             title = "Prediction Spread",
-            icon  = icon("crosshairs"),
+            icon = icon("crosshairs"),
             br(),
             plotOutput("plot_pred_spread", height = "420px"),
             hr(),
@@ -96,7 +96,7 @@ ui <- navbarPage(
 
           tabPanel(
             title = "MSE Decomposition",
-            icon  = icon("table"),
+            icon = icon("table"),
             br(),
             tableOutput("table_mse"),
             br(),
