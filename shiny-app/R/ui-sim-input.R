@@ -8,31 +8,31 @@ sim_input_ui <- function() {
     # ── 1. Sample Size ──────────────────────────────────────────────────────
     sliderInput(
       inputId  = "n",
-      label    = "Sample Size (n)",
-      min      = 20,
-      max      = 500,
-      value    = 100,
-      step     = 10
+      label = "Sample Size (n)",
+      min = 20,
+      max = 500,
+      value = 100,
+      step = 10
     ),
 
     # ── 2. Noise Level ──────────────────────────────────────────────────────
     sliderInput(
       inputId  = "sigma",
-      label    = HTML("Noise Level (&sigma;)"),
-      min      = 0.1,
-      max      = 5.0,
-      value    = 1.0,
-      step     = 0.1
+      label = HTML("Noise Level (&sigma;)"),
+      min = 0.1,
+      max = 5.0,
+      value = 1.0,
+      step = 0.1
     ),
 
     # ── 3. Random Seed ──────────────────────────────────────────────────────
     numericInput(
       inputId = "seed",
-      label   = "Random Seed",
-      value   = 42,
-      min     = 1,
-      max     = 99999,
-      step    = 1
+      label = "Random Seed",
+      value = 42,
+      min = 1,
+      max = 99999,
+      step = 1
     ),
 
     hr(),
@@ -40,10 +40,10 @@ sim_input_ui <- function() {
     # ── 4. Model Choice ─────────────────────────────────────────────────────
     radioButtons(
       inputId  = "model_type",
-      label    = "Regression Model",
+      label = "Regression Model",
       choices  = c(
         "Polynomial Regression" = "poly",
-        "k-Nearest Neighbours"  = "knn"
+        "k-Nearest Neighbours" = "knn"
       ),
       selected = "poly"
     ),
@@ -55,11 +55,11 @@ sim_input_ui <- function() {
       condition = "input.model_type == 'poly'",
       sliderInput(
         inputId = "poly_degree",
-        label   = "Polynomial Degree",
-        min     = 1,
-        max     = 15,
-        value   = 3,
-        step    = 1
+        label = "Polynomial Degree",
+        min = 1,
+        max = 15,
+        value = 3,
+        step = 1
       )
     ),
 
@@ -68,11 +68,11 @@ sim_input_ui <- function() {
       condition = "input.model_type == 'knn'",
       sliderInput(
         inputId = "knn_k",
-        label   = "Number of Neighbours (k)",
-        min     = 1,
-        max     = 50,
-        value   = 5,
-        step    = 1
+        label = "Number of Neighbours (k)",
+        min = 1,
+        max = 50,
+        value = 5,
+        step = 1
       )
     ),
 
@@ -81,9 +81,9 @@ sim_input_ui <- function() {
     # ── 6. Run Simulation ───────────────────────────────────────────────────
     actionButton(
       inputId = "run_sim",
-      label   = "Run Simulation",
-      class   = "btn btn-primary btn-block",
-      icon    = icon("play")
+      label = "Run Simulation",
+      class = "btn btn-primary btn-block",
+      icon = icon("play")
     ),
 
     br(),
@@ -91,8 +91,8 @@ sim_input_ui <- function() {
     # ── 6. Download Results ─────────────────────────────────────────────────
     downloadButton(
       outputId = "download_results",
-      label    = "Download Results (.csv)",
-      class    = "btn btn-default btn-block"
+      label = "Download Results (.csv)",
+      class = "btn btn-default btn-block"
     )
   )
 }

@@ -102,16 +102,16 @@ train_mse_knn <- function(x_train, y_train, k) {
 fit_model <- function(x_train, y_train, model_type, complexity) {
   if (model_type == "poly") {
     model <- fit_poly(x_train, y_train, degree = complexity)
-    list(type       = "poly",
-         model      = model,
-         x_train    = x_train,
-         y_train    = y_train,
+    list(type = "poly",
+         model = model,
+         x_train = x_train,
+         y_train = y_train,
          complexity = complexity)
   } else {                                  # knn
-    list(type       = "knn",
-         k          = complexity,
-         x_train    = x_train,
-         y_train    = y_train,
+    list(type = "knn",
+         k = complexity,
+         x_train = x_train,
+         y_train = y_train,
          complexity = complexity)
   }
 }
@@ -153,25 +153,25 @@ compute_bv_stats <- function(pred_matrix, true_y, sigma) {
   mean_pred <- colMeans(pred_matrix)                        # E[f̂(x₀)] over reps
 
   # Pointwise quantities (length-G vectors)
-  pw_bias2    <- (mean_pred - true_y)^2
+  pw_bias2 <- (mean_pred - true_y)^2
   pw_variance <- colMeans(sweep(pred_matrix, 2, mean_pred)^2)  # E[(f̂-E[f̂])²]
   pw_test_mse <- pw_bias2 + pw_variance + sigma^2
 
   # Scalar summaries (averaged over grid)
   list(
-    bias2       = mean(pw_bias2),
-    variance    = mean(pw_variance),
-    test_mse    = mean(pw_test_mse),
+    bias2 = mean(pw_bias2),
+    variance = mean(pw_variance),
+    test_mse = mean(pw_test_mse),
     irreducible = sigma^2,
 
     # Pointwise vectors for detailed plots
     pointwise = data.frame(
-      x          = EVAL_GRID,
-      true_y     = true_y,
-      mean_pred  = mean_pred,
-      bias2      = pw_bias2,
-      variance   = pw_variance,
-      test_mse   = pw_test_mse
+      x = EVAL_GRID,
+      true_y  = true_y,
+      mean_pred = mean_pred,
+      bias2 = pw_bias2,
+      variance = pw_variance,
+      test_mse = pw_test_mse
     )
   )
 }
@@ -191,8 +191,8 @@ run_mc_simulation <- function(n, sigma, seed, model_type, complexity, B = 200) {
   true_y <- TRUE_F(EVAL_GRID)           # fixed reference values
 
   # Pre-allocate B × G prediction matrix
-  pred_matrix     <- matrix(NA_real_, nrow = B, ncol = length(EVAL_GRID))
-  train_mse_vec   <- numeric(B)
+  pred_matrix <- matrix(NA_real_, nrow = B, ncol = length(EVAL_GRID))
+  train_mse_vec <- numeric(B)
 
   # ── Monte Carlo loop ───────────────────────────────────────────────────
   for (b in seq_len(B)) {
@@ -227,31 +227,31 @@ run_mc_simulation <- function(n, sigma, seed, model_type, complexity, B = 200) {
   # ── Return ─────────────────────────────────────────────────────────────
   list(
     # Scalar summaries for UI cards
-    train_mse   = train_mse_avg,
-    test_mse    = bv$test_mse,
-    bias2       = bv$bias2,
-    variance    = bv$variance,
+    train_mse = train_mse_avg,
+    test_mse = bv$test_mse,
+    bias2 = bv$bias2,
+    variance = bv$variance,
     irreducible = bv$irreducible,
 
     # Matrix + grid for prediction spread plot
     pred_matrix  = pred_matrix,
-    x_grid       = EVAL_GRID,
-    true_y       = true_y,
+    x_grid = EVAL_GRID,
+    true_y = true_y,
 
     # Pointwise breakdown for potential detailed plot
-    pointwise    = bv$pointwise,
+    pointwise = bv$pointwise,
 
     # Table & CSV export
-    summary_df   = summary_df,
+    summary_df = summary_df,
 
     # Echo parameters back (useful for display / logging)
     params = list(
-      n          = n,
-      sigma      = sigma,
-      seed       = seed,
+      n = n,
+      sigma = sigma,
+      seed = seed,
       model_type = model_type,
       complexity = complexity,
-      B          = B
+      B = B
     )
   )
 }
@@ -278,19 +278,19 @@ run_mc_sweep <- function(n, sigma, seed, model_type, B = 200) {
 
   results_list <- lapply(complexity_grid, function(cx) {
     sim <- run_mc_simulation(
-      n          = n,
-      sigma      = sigma,
-      seed       = seed,
+      n = n,
+      sigma = sigma,
+      seed = seed,
       model_type = model_type,
       complexity = cx,
-      B          = B
+      B = B
     )
     data.frame(
-      complexity  = cx,
-      train_mse   = sim$train_mse,
-      test_mse    = sim$test_mse,
-      bias2       = sim$bias2,
-      variance    = sim$variance,
+      complexity = cx,
+      train_mse = sim$train_mse,
+      test_mse = sim$test_mse,
+      bias2 = sim$bias2,
+      variance = sim$variance,
       irreducible = sim$irreducible
     )
   })
@@ -306,9 +306,10 @@ run_mc_sweep <- function(n, sigma, seed, model_type, B = 200) {
   }
 
   list(
-    sweep_df       = sweep_df,         # the plottable data frame
+    sweep_df = sweep_df,         # the plottable data frame
     complexity_grid = complexity_grid,
-    model_type     = model_type,
+    model_type = model_type,
     params = list(n = n, sigma = sigma, seed = seed, B = B)
   )
+  
 }
