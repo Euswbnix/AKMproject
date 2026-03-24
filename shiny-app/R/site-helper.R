@@ -3,7 +3,7 @@
 
 # ── App Metadata ────────────────────────────────────────────────────────────
 APP_TITLE  <- "Bias–Variance Tradeoff Explorer"
-APP_AUTHOR <- "Huang · Jiang · Xu · Zhu — UTM STA380"
+APP_AUTHOR <- "Huang · Jiang · Xu · Zhu — UTM STA380 Winter 2026"
 
 # ── Number of Monte Carlo repetitions (shared between UI hint and server) ──
 MC_REPS_DEFAULT <- 200

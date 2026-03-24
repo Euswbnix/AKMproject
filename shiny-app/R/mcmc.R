@@ -11,8 +11,8 @@
 # Notation follows the project proposal and ESL Ch. 7:
 #   y = f(x) + ε,   ε ~ N(0, σ²)
 #   Bias²(x₀) = ( E[f̂(x₀)] − f(x₀) )²
-#   Var(x₀)   = E[ (f̂(x₀) − E[f̂(x₀)])² ]
-#   Test MSE   ≈ Bias² + Variance + σ²  (irreducible noise)
+#   Var(x₀) = E[ (f̂(x₀) − E[f̂(x₀)])² ]
+#   Test MSE ≈ Bias² + Variance + σ² (irreducible noise)
 
 # ═══════════════════════════════════════════════════════════════════════════
 # 1.  TRUE REGRESSION FUNCTION
@@ -300,9 +300,9 @@ run_mc_sweep <- function(n, sigma, seed, model_type, B = 200) {
   # For kNN, add an "effective complexity" column (1/k) so the x-axis
   # runs low→high complexity left→right, matching the polynomial axis.
   if (model_type == "knn") {
-    sweep_df$eff_complexity <- 1 / sweep_df$complexity   # 1/k ↑ = more complex
+    sweep_df$eff_complexity <- 1 / sweep_df$complexity  # 1/k ↑ = more complex
   } else {
-    sweep_df$eff_complexity <- sweep_df$complexity        # degree ↑ = more complex
+    sweep_df$eff_complexity <- sweep_df$complexity  # degree ↑ = more complex
   }
 
   list(
