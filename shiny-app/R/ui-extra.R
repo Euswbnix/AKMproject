@@ -1,8 +1,8 @@
 # ui-extra.R
 # Supplementary UI components:
-#   - about_tab()        : project info / references tab
-#   - results_header()   : descriptive text above the plot area
-#   - summary_card()     : a styled info card for a single metric
+#   - about_tab(): project info / references tab
+#   - results_header(): descriptive text above the plot area
+#   - summary_card(): a styled info card for a single metric
 
 # ── About Tab ──────────────────────────────────────────────────────────────
 about_tab <- function() {

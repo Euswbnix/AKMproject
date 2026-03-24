@@ -76,8 +76,8 @@ server <- function(input, output, session) {
 
     x_label <- if (mdl == "poly") "Polynomial Degree" else "Effective Complexity (1/k)"
     x_var <- df$eff_complexity
-    xlim  <- range(x_var)
-    ylim  <- c(0, max(df$test_mse, df$train_mse) * 1.05)
+    xlim <- range(x_var)
+    ylim <- c(0, max(df$test_mse, df$train_mse) * 1.05)
 
     par(mar = c(4.5, 4.5, 2.5, 1.5), bg = "white")
     plot(NULL, xlim = xlim, ylim = ylim,
