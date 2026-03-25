@@ -72,14 +72,15 @@ server <- function(input, output, session) {
   df <- sim_sweep()$sweep_df
   best_idx <- which.min(df$test_mse)
 
-  paste0("Degree ", df$complexity[best_idx])
-  })
+  paste0("Degree ", df$complexity[best_idx])  })
 
   # ── Plot: Bias-Variance curves (sweep) ───────────────────────────────────
   output$plot_bv_curve <- renderPlot({
     req(sim_sweep())
+    mdl <- input$model_type
     df  <- sim_sweep()$sweep_df
-    mdl <- sim_sweep()$model_type
+    best_idx <- which.min(df$test_mse)
+    best_cx  <- df$complexity[best_idx]
 
     x_label <- if (mdl == "poly") "Polynomial Degree" else "Effective Complexity (1/k)"
     x_var <- df$eff_complexity
@@ -110,6 +111,13 @@ server <- function(input, output, session) {
     text(eff, ylim[2] * 0.97,
          labels = if (mdl == "poly") paste("degree =", cx) else paste("k =", cx),
          adj = -0.1, cex = 0.78)
+
+    # Mark best complexity with a vertical line
+    best_eff <- if (mdl == "knn") 1 / best_cx else best_cx
+    abline(v = best_eff, lty = 2, col = "purple", lwd = 1.6)
+    text(best_eff, ylim[2] * 0.90,
+         labels = if (mdl == "poly") paste("best degree =", best_cx) else paste("best k =", best_cx),
+         col = "purple", adj = -0.1, cex = 0.78)
 
     legend("topright",
            legend = c("Train MSE", "Test MSE", "Bias\u00b2", "Variance",
