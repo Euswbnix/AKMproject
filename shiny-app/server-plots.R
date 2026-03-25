@@ -1,21 +1,23 @@
 # server-plots.R
 # Server logic for the STA380 Bias-Variance Shiny app.
 # Calls run_mc_simulation() and run_mc_sweep() from R/mcmc_example.R.
+
 library(ggplot2)
 library(plotly)
-server <- function(input, output, session) {
 
+server <- function(input, output, session) {
+  
   # ── Helper: active complexity parameter ─────────────────────────────────
   active_complexity <- reactive({
     if (input$model_type == "poly") input$poly_degree else input$knn_k
   })
-
+  
   # ── Reactive: single-complexity simulation (cards / spread / table) ─────
   sim_single <- eventReactive(input$run_sim, {
     withProgress(message = "Running Monte Carlo simulation…", value = 0, {
-
+      
       setProgress(0.2)
-
+      
       result <- run_mc_simulation(
         n = input$n,
         sigma = input$sigma,
@@ -24,18 +26,18 @@ server <- function(input, output, session) {
         complexity = active_complexity(),
         B = input$mc_reps
       )
-
+      
       setProgress(1)
       result
     })
   })
-
+  
   # ── Reactive: full sweep simulation (BV curve tab) ───────────────────────
   sim_sweep <- eventReactive(input$run_sim, {
     withProgress(message = "Running complexity sweep…", value = 0, {
-
+      
       setProgress(0.2)
-
+      
       result <- run_mc_sweep(
         n = input$n,
         sigma = input$sigma,
@@ -43,15 +45,15 @@ server <- function(input, output, session) {
         model_type = input$model_type,
         B = input$mc_reps
       )
-
+      
       setProgress(1)
       result
     })
   })
-
+  
   # ── Summary metric cards ─────────────────────────────────────────────────
   fmt <- function(x) ifelse(is.null(x), "—", sprintf("%.4f", x))
-
+  
   output$card_train_mse <- renderText({
     req(sim_single())
     fmt(sim_single()$train_mse)
@@ -69,12 +71,35 @@ server <- function(input, output, session) {
     fmt(sim_single()$variance)
   })
   output$card_best_model <- renderText({
-  req(sim_sweep())
-  df <- sim_sweep()$sweep_df
-  best_idx <- which.min(df$test_mse)
-
-  paste0("Degree ", df$complexity[best_idx])  })
-
+    req(sim_sweep())
+    df <- sim_sweep()$sweep_df
+    best_idx <- which.min(df$test_mse)
+    
+    paste0("Degree ", df$complexity[best_idx])  })
+  
+  output$model_recommendation <- renderText({
+    req(sim_sweep())
+    
+    df <- sim_sweep()$sweep_df
+    mdl <- input$model_type
+    
+    best_idx <- which.min(df$test_mse)
+    best_cx  <- df$complexity[best_idx]
+    best_mse <- df$test_mse[best_idx]
+    
+    if (mdl == "poly") {
+      paste0(
+        "Recommended model: Polynomial degree ", best_cx,
+        " (minimum test MSE = ", round(best_mse, 4), ")."
+      )
+    } else {
+      paste0(
+        "Recommended model: k-NN with k = ", best_cx,
+        " (minimum test MSE = ", round(best_mse, 4), ")."
+      )
+    }
+  })
+  
   # ── Plot: Bias-Variance curves (sweep) [Refactored for Plotly] ───────────
   output$plot_bv_curve <- renderPlotly({
     req(sim_sweep())
@@ -132,28 +157,28 @@ server <- function(input, output, session) {
     ggplotly(p, tooltip = c("x", "text")) %>%
       layout(legend = list(orientation = "h", y = -0.15))
   })
-
+  
   # ── Plot: Prediction spread ──────────────────────────────────────────────
   output$plot_pred_spread <- renderPlot({
-
+    
     req(sim_single())
     res <- sim_single()
-
+    
     par(mar = c(4.5, 4.5, 2.5, 1.5), bg = "white")
     plot(NULL,
          xlim = c(0, 1), ylim = range(res$pred_matrix) * 1.05,
          xlab = "x", ylab = "y",
          main = paste("MC Prediction Spread \u2014 B =", res$params$B, "repetitions"))
-
+    
     # Up to 100 MC curves in translucent grey
     B_plot <- min(nrow(res$pred_matrix), 100)
     for (b in seq_len(B_plot)) {
       lines(res$x_grid, res$pred_matrix[b, ], col = "#00000018", lwd = 0.8)
     }
-
+    
     lines(res$x_grid, res$pointwise$mean_pred, col = "#de2d26", lwd = 2.2, lty = 2)
     lines(res$x_grid, res$true_y,              col = "black",       lwd = 2.5)
-
+    
     legend("topright",
            legend = c("True f(x)", "Mean prediction", "MC fitted curves"),
            col = c("black", "#de2d26", "#555555"),
@@ -161,13 +186,13 @@ server <- function(input, output, session) {
            lty = c(1, 2, 1),
            bty = "n", cex = 0.82)
   })
-
+  
   # ── Table: MSE decomposition ─────────────────────────────────────────────
   output$table_mse <- renderTable({
     req(sim_single())
     sim_single()$summary_df
   }, striped = TRUE, hover = TRUE, bordered = TRUE, align = "lr")
-
+  
   # ── Download handler ─────────────────────────────────────────────────────
   output$download_results <- downloadHandler(
     filename = function() {

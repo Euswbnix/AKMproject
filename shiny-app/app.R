@@ -19,26 +19,26 @@ source("server-plots.R")      # defines server()
 ui <- navbarPage(
   title = APP_TITLE,
   id    = "navbar",
-
+  
   # Inject MathJax once for the whole app
   header = latex_header(),
-
+  
   # ── Tab 1: Simulation ────────────────────────────────────────────────────
   tabPanel(
     title = "Simulation",
     icon  = icon("chart-line"),
-
+    
     sidebarLayout(
-
+      
       # Sidebar: all Section 4 inputs
       sidebarPanel(
         width = 3,
-
+        
         labelled_hr("Simulation Settings"),
         sim_input_ui(),
-
+        
         br(),
-
+        
         # Optional: Monte Carlo repetitions
         labelled_hr("Advanced"),
         sliderInput(
@@ -54,37 +54,45 @@ ui <- navbarPage(
           "Higher B gives smoother bias/variance estimates but takes longer."
         )
       ),
-
+      
       # Main panel: metric summary + tabbed plot outputs
       mainPanel(
         width = 9,
-
+        
         results_header(),
         bv_decomp_display(),
-
+        
         br(),
-
+        
         # Summary cards (Train MSE / Test MSE / Bias² / Variance)
         metrics_row(),
-
+        
         br(),
-
+        
         # Plot tabs
         tabsetPanel(
           id = "plot_tabs",
-
+          
           tabPanel(
             title = "Bias–Variance Curves",
             icon  = icon("wave-square"),
             br(),
             withSpinner(plotlyOutput("plot_bv_curve", height = "420px"), type = 6, color = "#2c3e50"),
+            br(),
+            div(
+              style = "margin-top: 8px; margin-bottom: 12px; padding: 12px 16px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px;",
+              h4(style = "margin-top: 0; margin-bottom: 8px;", "Model Recommendation"),
+              textOutput("model_recommendation"),
+              tags$div(style = "height: 6px;"),
+              textOutput("fit_feedback")
+            ),
             hr(),
             helpText(
               "Test MSE (red) = Bias² (green) + Variance (amber) + irreducible noise.",
               "Training MSE (blue) decreases monotonically with model complexity."
             )
           ),
-
+          
           tabPanel(
             title = "Prediction Spread",
             icon = icon("crosshairs"),
@@ -96,7 +104,7 @@ ui <- navbarPage(
               "The true function f(x) is shown in black."
             )
           ),
-
+          
           tabPanel(
             title = "MSE Decomposition",
             icon = icon("table"),
@@ -109,7 +117,7 @@ ui <- navbarPage(
       )
     )
   ),
-
+  
   # ── Tab 2: About ─────────────────────────────────────────────────────────
   about_tab()
 )
