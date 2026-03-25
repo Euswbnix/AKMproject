@@ -31,7 +31,7 @@ This R package and interactive Shiny application provide a comprehensive toolkit
 * **Cross-Platform Tested:** `devtools::check()` passed with **0 Errors / 0 Warnings** on Windows 11, macOS, and Ubuntu 24.04 LTS.
 * **Dependency Management:** Full environment reproducibility via `manifest.json` and a robust `DESCRIPTION` file.
 
-## Generative AI Statement
+##
 In accordance with the course requirements, a detailed **Generative AI Usage Statement** is included in the package vignettes.
 * **Vignette Path:** `vignettes/ai_usage_statement.Rmd`
 * **Final Update:** Includes documentation on refactoring visualizations to `plotly` and implementing asynchronous UI feedback.
