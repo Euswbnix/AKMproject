@@ -116,9 +116,10 @@ summary_card <- function(title, value_id, color = "#0275d8") {
 # ── Metric Cards Row ────────────────────────────────────────────────────────
 metrics_row <- function() {
   fluidRow(
-    column(3, summary_card("Train MSE",  "card_train_mse", "#0275d8")),
-    column(3, summary_card("Test MSE",   "card_test_mse",  "#d9534f")),
-    column(3, summary_card("Bias²",      "card_bias2",     "#5cb85c")),
-    column(3, summary_card("Variance",   "card_variance",  "#f0ad4e"))
+    column(2, summary_card("Train MSE",  "card_train_mse", "#0275d8")),
+    column(2, summary_card("Test MSE",   "card_test_mse",  "#d9534f")),
+    column(2, summary_card("Bias²",      "card_bias2",     "#5cb85c")),
+    column(2, summary_card("Variance",   "card_variance",  "#f0ad4e")),
+    column(2, summary_card("Best Complexity",  "card_best_model","#6f42c1"))
   )
 }
