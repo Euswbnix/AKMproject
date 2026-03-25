@@ -19,6 +19,12 @@ about_tab <- function() {
           strong("Jizheng Huang, Victor Jiang, Tianchen Xu,"), "and",
           strong("Kai Rui Zhu"), "(University of Toronto, Mississauga)."
         ),
+	p(
+          "The goal of this project is to illustrate the bias-variance tradeoff in regression through repeated Monte Carlo simulation. ",
+          "Users can explore how model flexibility, sample size, and noise level affect training MSE, test MSE, bias^2, and variance."
+        ),
+	hr(),
+	h4("Simulation Framework"),
         p(
           "Data are generated according to the model",
           "\\( y = f(x) + \\varepsilon \\)",
@@ -26,6 +32,28 @@ about_tab <- function() {
           "\\( \\varepsilon \\sim \\mathcal{N}(0, \\sigma^2) \\).",
           "Monte Carlo simulation is used to estimate bias\\(^2\\),",
           "variance, and MSE across model complexities."
+        ),
+	p(
+          "For each Monte Carlo repetition, the app generates a new training sample, fits the selected regression model, and evaluates predictive performance. ",
+          "Repeated fits are then used to estimate bias², variance, and mean squared error across model complexities."
+        ),
+        hr(),
+	h4("How to Use the App"),
+	tags$ol(
+          tags$li("Choose the simulation settings in the sidebar, including the random seed, sample size, noise level, model type, and model complexity."),
+          tags$li("Adjust the number of Monte Carlo repetitions to control the stability of the estimates."),
+          tags$li("Click ", strong("Run Simulation"), " to generate updated results."),
+          tags$li("Use the plot tabs to examine the bias-variance curves, prediction spread, and MSE decomposition table."),
+          tags$li("Download the summary results if desired.")
+        ),
+	hr(),
+	h4("Interpretation"),
+        p(
+          "As model complexity increases, bias² typically decreases while variance increases. ",
+          "This tradeoff often leads to a U-shaped test MSE curve, where overly simple models underfit and overly flexible models overfit."
+        ),
+        p(
+          "The prediction spread plot shows how fitted models vary across Monte Carlo repetitions, while the decomposition table summarizes the average training MSE, test MSE, bias², and variance."
         ),
         hr(),
         h4("References"),
