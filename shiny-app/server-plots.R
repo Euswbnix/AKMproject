@@ -67,6 +67,13 @@ server <- function(input, output, session) {
     req(sim_single())
     fmt(sim_single()$variance)
   })
+  output$card_best_model <- renderText({
+  req(sim_sweep())
+  df <- sim_sweep()$sweep_df
+  best_idx <- which.min(df$test_mse)
+
+  paste0("Degree ", df$complexity[best_idx])
+  })
 
   # ── Plot: Bias-Variance curves (sweep) ───────────────────────────────────
   output$plot_bv_curve <- renderPlot({
