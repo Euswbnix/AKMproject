@@ -3,6 +3,9 @@
 # Sources all modular UI and server files, then calls shinyApp().
 
 library(shiny)
+library(plotly)
+library(ggplot2)
+library(shinycssloaders)
 
 # ── Source modular files ────────────────────────────────────────────────────
 source("R/site-helper.R")
