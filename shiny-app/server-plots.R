@@ -100,7 +100,7 @@ server <- function(input, output, session) {
     }
   })
   
-  # ── Plot: Bias-Variance curves (sweep) [Refactored for Plotly] ───────────
+  # ── Plot: Bias-Variance curves (sweep) [Refactored for Plotly with Labels] ───────────
   output$plot_bv_curve <- renderPlotly({
     req(sim_sweep())
     mdl <- input$model_type
@@ -115,30 +115,37 @@ server <- function(input, output, session) {
     eff <- if (mdl == "knn") 1 / cx else cx
     best_eff <- if (mdl == "knn") 1 / best_cx else best_cx
     
+    # Calculate Y positions for labels to avoid clutter
+    # We place labels near the top of the Train MSE line (blue) at that specific complexity
+    get_y_at_x <- function(complexity_val, column) {
+      target_idx <- which.min(abs(df$complexity - complexity_val))
+      df[[column]][target_idx]
+    }
+    y_current <- get_y_at_x(cx, "train_mse")
+    y_best <- get_y_at_x(best_cx, "test_mse") # for best line, label near test mse
+    y_top_limit <- max(df$test_mse, df$train_mse, na.rm = TRUE) * 0.95
     p <- ggplot(df, aes(x = eff_complexity)) +
       # Irreducible noise line
       geom_hline(yintercept = df$irreducible[1], linetype = "dashed", color = "grey50") +
       
-      # Bias2 Line & Points
+      # The main lines (Bias2, Variance, Test MSE, Train MSE)
       geom_line(aes(y = bias2, color = "Bias\u00b2")) +
       geom_point(aes(y = bias2, color = "Bias\u00b2", text = paste("Bias\u00b2:", round(bias2, 4)))) +
       
-      # Variance Line & Points
       geom_line(aes(y = variance, color = "Variance")) +
       geom_point(aes(y = variance, color = "Variance", text = paste("Variance:", round(variance, 4)))) +
       
-      # Test MSE Line & Points
       geom_line(aes(y = test_mse, color = "Test MSE"), linewidth = 1) +
       geom_point(aes(y = test_mse, color = "Test MSE", text = paste("Test MSE:", round(test_mse, 4)))) +
       
-      # Train MSE Line & Points
       geom_line(aes(y = train_mse, color = "Train MSE"), linewidth = 1) +
       geom_point(aes(y = train_mse, color = "Train MSE", text = paste("Train MSE:", round(train_mse, 4)))) +
       
-      # Vertical reference lines
+      # ── Vertical reference lines (labels added via Plotly annotations below) ──
       geom_vline(xintercept = eff, linetype = "dotted", color = "black") +
       geom_vline(xintercept = best_eff, linetype = "dashed", color = "purple") +
       
+      # Labs, scale manual, and theme (minimal for pure white backround)
       labs(
         title = paste("Bias\u00b2 \u2013 Variance Tradeoff:", input$n, "obs, \u03c3 =", input$sigma),
         x = x_label,
@@ -146,17 +153,47 @@ server <- function(input, output, session) {
         color = ""
       ) +
       scale_color_manual(values = c(
-        "Train MSE" = "#3182bd",
-        "Test MSE"  = "#de2d26",
-        "Bias\u00b2"  = "#31a354",
-        "Variance"  = "#e6550d"
+        "Train MSE" = "#3182bd",  # blue
+        "Test MSE"  = "#de2d26",  # red
+        "Bias\u00b2"  = "#31a354",  # green
+        "Variance"  = "#e6550d"   # orange
       )) +
-      theme_minimal()
+      theme_minimal() +
+      # Final aesthetics tweak: move legend to bottom-left to not mask labels
+      theme(legend.position = "bottom", legend.justification = "left")
     
     # Convert ggplot to interactive Plotly object
+    # We turn OFF the tooltip for the newly added text labels to avoid clutter
     ggplotly(p, tooltip = c("x", "text")) %>%
-      layout(legend = list(orientation = "h", y = -0.15))
-  })
+      layout(
+        legend = list(orientation = "h", y = -0.15, x = 0),
+        annotations = list(
+          list(
+            x = eff,
+            y = 1.05,
+            xref = "x",
+            yref = "paper",
+            text = paste0(if(mdl == "poly") "degree=" else "k=", cx),
+            showarrow = FALSE,
+            font = list(color = "black", size = 12),
+            xanchor = "left",
+            xshift = 10, 
+            yanchor = "bottom"
+          ),
+          list(
+            x = best_eff,
+            y = 0.95,
+            xref = "x",
+            yref = "paper",
+            text = paste0(if(mdl == "poly") "best degree=" else "best k=", best_cx),
+            showarrow = FALSE,
+            font = list(color = "purple", size = 12),
+            xanchor = "left",
+            xshift = 10,
+            yanchor = "bottom"
+          )
+        )
+      )
   
   # ── Plot: Prediction spread ──────────────────────────────────────────────
   output$plot_pred_spread <- renderPlot({
