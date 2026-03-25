@@ -1,7 +1,8 @@
 # server-plots.R
 # Server logic for the STA380 Bias-Variance Shiny app.
 # Calls run_mc_simulation() and run_mc_sweep() from R/mcmc_example.R.
-
+library(ggplot2)
+library(plotly)
 server <- function(input, output, session) {
 
   # ── Helper: active complexity parameter ─────────────────────────────────
@@ -74,60 +75,62 @@ server <- function(input, output, session) {
 
   paste0("Degree ", df$complexity[best_idx])  })
 
-  # ── Plot: Bias-Variance curves (sweep) ───────────────────────────────────
-  output$plot_bv_curve <- renderPlot({
+  # ── Plot: Bias-Variance curves (sweep) [Refactored for Plotly] ───────────
+  output$plot_bv_curve <- renderPlotly({
     req(sim_sweep())
     mdl <- input$model_type
     df  <- sim_sweep()$sweep_df
     best_idx <- which.min(df$test_mse)
     best_cx  <- df$complexity[best_idx]
-
+    
     x_label <- if (mdl == "poly") "Polynomial Degree" else "Effective Complexity (1/k)"
-    x_var <- df$eff_complexity
-    xlim <- range(x_var)
-    ylim <- c(0, max(df$test_mse, df$train_mse) * 1.05)
-
-    par(mar = c(4.5, 4.5, 2.5, 1.5), bg = "white")
-    plot(NULL, xlim = xlim, ylim = ylim,
-         xlab = x_label, ylab = "MSE",
-         main = paste("Bias\u00b2 \u2013 Variance Tradeoff:", input$n,
-                      "obs, \u03c3 =", input$sigma))
-
-    # Irreducible noise floor
-    abline(h = df$irreducible[1], lty = 2, col = "grey50", lwd = 1.2)
-    text(xlim[1], df$irreducible[1] * 1.04,
-         labels = paste0("\u03c3\u00b2 = ", round(df$irreducible[1], 3)),
-         adj = 0, cex = 0.75, col = "grey40")
-
-    lines(x_var, df$bias2, col = PALETTE$bias2, lwd = 2.2, type = "b", pch = 16, cex = 0.7)
-    lines(x_var, df$variance, col = PALETTE$variance, lwd = 2.2, type = "b", pch = 16, cex = 0.7)
-    lines(x_var, df$test_mse, col = PALETTE$test, lwd = 2.5, type = "b", pch = 16, cex = 0.7)
-    lines(x_var, df$train_mse,col = PALETTE$train, lwd = 2.5, type = "b", pch = 16, cex = 0.7)
-
-    # Mark selected complexity with a vertical line
+    
+    # Calculate complexities for vertical reference lines
     cx  <- active_complexity()
     eff <- if (mdl == "knn") 1 / cx else cx
-    abline(v = eff, lty = 3, col = "black", lwd = 1.2)
-    text(eff, ylim[2] * 0.97,
-         labels = if (mdl == "poly") paste("degree =", cx) else paste("k =", cx),
-         adj = -0.1, cex = 0.78)
-
-    # Mark best complexity with a vertical line
     best_eff <- if (mdl == "knn") 1 / best_cx else best_cx
-    abline(v = best_eff, lty = 2, col = "purple", lwd = 1.6)
-    text(best_eff, ylim[2] * 0.90,
-         labels = if (mdl == "poly") paste("best degree =", best_cx) else paste("best k =", best_cx),
-         col = "purple", adj = -0.1, cex = 0.78)
-
-    legend("topright",
-           legend = c("Train MSE", "Test MSE", "Bias\u00b2", "Variance",
-                      "Irreducible (\u03c3\u00b2)"),
-           col = c(PALETTE$train, PALETTE$test, PALETTE$bias2,
-                      PALETTE$variance, "grey50"),
-           lwd = c(2.5, 2.5, 2.2, 2.2, 1.2),
-           lty = c(1, 1, 1, 1, 2),
-           pch = c(16, 16, 16, 16, NA),
-           bty = "n", cex = 0.82)
+    
+    p <- ggplot(df, aes(x = eff_complexity)) +
+      # Irreducible noise line
+      geom_hline(yintercept = df$irreducible[1], linetype = "dashed", color = "grey50") +
+      
+      # Bias2 Line & Points
+      geom_line(aes(y = bias2, color = "Bias\u00b2")) +
+      geom_point(aes(y = bias2, color = "Bias\u00b2", text = paste("Bias\u00b2:", round(bias2, 4)))) +
+      
+      # Variance Line & Points
+      geom_line(aes(y = variance, color = "Variance")) +
+      geom_point(aes(y = variance, color = "Variance", text = paste("Variance:", round(variance, 4)))) +
+      
+      # Test MSE Line & Points
+      geom_line(aes(y = test_mse, color = "Test MSE"), linewidth = 1) +
+      geom_point(aes(y = test_mse, color = "Test MSE", text = paste("Test MSE:", round(test_mse, 4)))) +
+      
+      # Train MSE Line & Points
+      geom_line(aes(y = train_mse, color = "Train MSE"), linewidth = 1) +
+      geom_point(aes(y = train_mse, color = "Train MSE", text = paste("Train MSE:", round(train_mse, 4)))) +
+      
+      # Vertical reference lines
+      geom_vline(xintercept = eff, linetype = "dotted", color = "black") +
+      geom_vline(xintercept = best_eff, linetype = "dashed", color = "purple") +
+      
+      labs(
+        title = paste("Bias\u00b2 \u2013 Variance Tradeoff:", input$n, "obs, \u03c3 =", input$sigma),
+        x = x_label,
+        y = "MSE",
+        color = ""
+      ) +
+      scale_color_manual(values = c(
+        "Train MSE" = "#3182bd",
+        "Test MSE"  = "#de2d26",
+        "Bias\u00b2"  = "#31a354",
+        "Variance"  = "#e6550d"
+      )) +
+      theme_minimal()
+    
+    # Convert ggplot to interactive Plotly object
+    ggplotly(p, tooltip = c("x", "text")) %>%
+      layout(legend = list(orientation = "h", y = -0.15))
   })
 
   # ── Plot: Prediction spread ──────────────────────────────────────────────
@@ -148,12 +151,12 @@ server <- function(input, output, session) {
       lines(res$x_grid, res$pred_matrix[b, ], col = "#00000018", lwd = 0.8)
     }
 
-    lines(res$x_grid, res$pointwise$mean_pred, col = PALETTE$test, lwd = 2.2, lty = 2)
+    lines(res$x_grid, res$pointwise$mean_pred, col = "#de2d26", lwd = 2.2, lty = 2)
     lines(res$x_grid, res$true_y,              col = "black",       lwd = 2.5)
 
     legend("topright",
            legend = c("True f(x)", "Mean prediction", "MC fitted curves"),
-           col = c("black", PALETTE$test, "#555555"),
+           col = c("black", "#de2d26", "#555555"),
            lwd = c(2.5, 2.2, 0.8),
            lty = c(1, 2, 1),
            bty = "n", cex = 0.82)

@@ -77,7 +77,7 @@ ui <- navbarPage(
             title = "Bias–Variance Curves",
             icon  = icon("wave-square"),
             br(),
-            plotOutput("plot_bv_curve", height = "420px"),
+            withSpinner(plotlyOutput("plot_bv_curve", height = "420px"), type = 6, color = "#2c3e50"),
             hr(),
             helpText(
               "Test MSE (red) = Bias² (green) + Variance (amber) + irreducible noise.",
@@ -89,7 +89,7 @@ ui <- navbarPage(
             title = "Prediction Spread",
             icon = icon("crosshairs"),
             br(),
-            plotOutput("plot_pred_spread", height = "420px"),
+            withSpinner(plotOutput("plot_pred_spread", height = "420px"), type = 6, color = "#2c3e50"),
             hr(),
             helpText(
               "Each grey curve is a fitted model from one MC repetition.",
