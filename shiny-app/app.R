@@ -3,6 +3,8 @@
 # Sources all modular UI and server files, then calls shinyApp().
 
 library(shiny)
+library(plotly)
+library(shinycssloaders)
 
 # ── Source modular files ────────────────────────────────────────────────────
 source("R/site-helper.R")
@@ -75,7 +77,15 @@ ui <- navbarPage(
             icon  = icon("wave-square"),
             br(),
             plotOutput("plot_bv_curve", height = "420px"),
-            hr(),
+            br(),
+	    div(
+    	      style = "margin-top: 8px; margin-bottom: 12px; padding: 12px 16px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px;",
+    	      h4(style = "margin-top: 0; margin-bottom: 8px;", "Model Recommendation"),
+    	      textOutput("model_recommendation"),
+    	      tags$div(style = "height: 6px;"),
+    	      textOutput("fit_feedback")
+  	    ),
+  	    hr(),
             helpText(
               "Test MSE (red) = Bias² (green) + Variance (amber) + irreducible noise.",
               "Training MSE (blue) decreases monotonically with model complexity."
@@ -101,11 +111,12 @@ ui <- navbarPage(
             tableOutput("table_mse"),
             br(),
             helpText("Values shown are averaged over all Monte Carlo repetitions.")
-          )
+	  
+            )
         )
+       )
       )
-    )
-  ),
+    ),
 
   # ── Tab 2: About ─────────────────────────────────────────────────────────
   about_tab()

@@ -73,7 +73,29 @@ server <- function(input, output, session) {
   best_idx <- which.min(df$test_mse)
 
   paste0("Degree ", df$complexity[best_idx])  })
+  
+  output$model_recommendation <- renderText({
+  req(sim_sweep())
 
+  df <- sim_sweep()$sweep_df
+  mdl <- input$model_type
+
+  best_idx <- which.min(df$test_mse)
+  best_cx  <- df$complexity[best_idx]
+  best_mse <- df$test_mse[best_idx]
+
+  if (mdl == "poly") {
+    paste0(
+      "Recommended model: Polynomial degree ", best_cx,
+      " (minimum test MSE = ", round(best_mse, 4), ")."
+    )
+  } else {
+    paste0(
+      "Recommended model: k-NN with k = ", best_cx,
+      " (minimum test MSE = ", round(best_mse, 4), ")."
+    )
+    }
+  })
   # ── Plot: Bias-Variance curves (sweep) ───────────────────────────────────
   output$plot_bv_curve <- renderPlot({
     req(sim_sweep())
