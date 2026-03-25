@@ -170,7 +170,7 @@ server <- function(input, output, session) {
         annotations = list(
           list(
             x = eff + 0.3,
-            y = 1.05,
+            y = 0.88,
             xref = "x",
             yref = "paper",
             text = paste0(if(mdl == "poly") "degree=" else "k=", cx),
@@ -181,7 +181,7 @@ server <- function(input, output, session) {
           ),
           list(
             x = best_eff + 0.3,
-            y = 0.95,
+            y = 0.80,
             xref = "x",
             yref = "paper",
             text = paste0(if(mdl == "poly") "best degree=" else "best k=", best_cx),
