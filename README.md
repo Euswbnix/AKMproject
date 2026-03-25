@@ -1,6 +1,7 @@
 # Bias-Variance Tradeoff Explorer (AKMproject)
 
 Current project progress: **Final Implementation Fully Deployed!** 
+
 🔗 **[Live Demo: View our Shiny App on Posit Connect Cloud](https://019cea29-16b6-3560-2cce-56feb47d4a51.share.connect.posit.cloud/)**
 
 ---
