@@ -169,7 +169,7 @@ server <- function(input, output, session) {
         legend = list(orientation = "h", y = -0.15, x = 0),
         annotations = list(
           list(
-            x = eff,
+            x = eff + 0.3,
             y = 1.05,
             xref = "x",
             yref = "paper",
@@ -177,11 +177,10 @@ server <- function(input, output, session) {
             showarrow = FALSE,
             font = list(color = "black", size = 12),
             xanchor = "left",
-            xshift = 10, 
             yanchor = "bottom"
           ),
           list(
-            x = best_eff,
+            x = best_eff + 0.3,
             y = 0.95,
             xref = "x",
             yref = "paper",
@@ -189,11 +188,11 @@ server <- function(input, output, session) {
             showarrow = FALSE,
             font = list(color = "purple", size = 12),
             xanchor = "left",
-            xshift = 10,
             yanchor = "bottom"
           )
         )
       )
+  })
   
   # ── Plot: Prediction spread ──────────────────────────────────────────────
   output$plot_pred_spread <- renderPlot({
