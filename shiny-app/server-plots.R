@@ -149,7 +149,7 @@ server <- function(input, output, session) {
     }
   })
   # ── Plot: Bias-Variance curves (sweep) ───────────────────────────────────
-  output$plot_bv_curve <- renderPlot({
+  output$plot_bv_curve <- renderPlotly({
     req(sim_sweep())
     mdl <- input$model_type
     df  <- sim_sweep()$sweep_df
