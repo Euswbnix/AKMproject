@@ -100,54 +100,43 @@ server <- function(input, output, session) {
     }
   })
    # ── Underfitting / overfitting feedback ────────────────────────────────
-   output$fit_feedback <- renderText({
-    req(sim_sweep())
+   output$fit_feedback <- renderUI({
+  req(sim_sweep())
 
-    df <- sim_sweep()$sweep_df
-    mdl <- input$model_type
-    current_cx <- active_complexity()
-    best_cx <- df$complexity[which.min(df$test_mse)]
+  df <- sim_sweep()$sweep_df
+  best_idx <- which.min(df$test_mse)
+  best_cx  <- df$complexity[best_idx]
 
-    if (mdl == "poly") {
-      if (current_cx < best_cx) {
-        paste0(
-          "Underfitting warning: degree ", current_cx,
-          " is below the recommended degree ", best_cx,
-          ". The model is likely too simple and may have relatively high bias."
-        )
-      } else if (current_cx > best_cx) {
-        paste0(
-          "Overfitting warning: degree ", current_cx,
-          " is above the recommended degree ", best_cx,
-          ". The model may be too flexible and may have relatively high variance."
-        )
-      } else {
-        paste0(
-          "Good choice: degree ", current_cx,
-          " matches the recommended model complexity."
-        )
-      }
-    } else {
-      if (current_cx > best_cx) {
-        paste0(
-          "Underfitting warning: k = ", current_cx,
-          " is larger than the recommended k = ", best_cx,
-          ". The model may be overly smooth and miss important structure."
-        )
-      } else if (current_cx < best_cx) {
-        paste0(
-          "Overfitting warning: k = ", current_cx,
-          " is smaller than the recommended k = ", best_cx,
-          ". The model may be too sensitive to noise."
-        )
-      } else {
-        paste0(
-          "Good choice: k = ", current_cx,
-          " matches the recommended model complexity."
-        )
-      }
-    }
-  })
+  cx <- active_complexity()
+
+  status <- if (cx < best_cx) {
+    "underfit"
+  } else if (cx > best_cx) {
+    "overfit"
+  } else {
+    "good"
+  }
+
+  if (status == "good") {
+    div(
+      style = "padding:10px; background:#e6f4ea; border-left:5px solid #2e7d32; border-radius:6px;",
+      strong("Good Fit: "),
+      "Model complexity is well balanced between bias and variance."
+    )
+  } else if (status == "underfit") {
+    div(
+      style = "padding:10px; background:#fff3e0; border-left:5px solid #ef6c00; border-radius:6px;",
+      strong("Underfitting: "),
+      "Model is too simple. Consider increasing complexity."
+    )
+  } else {
+    div(
+      style = "padding:10px; background:#fdecea; border-left:5px solid #c62828; border-radius:6px;",
+      strong("Overfitting: "),
+      "Model is too complex. Variance dominates."
+    )
+  }
+})
   # ── Plot: Bias-Variance curves (sweep) ───────────────────────────────────
   output$plot_bv_curve <- renderPlotly({
     req(sim_sweep())
