@@ -99,9 +99,57 @@ server <- function(input, output, session) {
       )
     }
   })
-  
-  # ── Plot: Bias-Variance curves (sweep) [Refactored for Plotly with Labels] ───────────
-  output$plot_bv_curve <- renderPlotly({
+   # ── Underfitting / overfitting feedback ────────────────────────────────
+   output$fit_feedback <- renderText({
+    req(sim_sweep())
+
+    df <- sim_sweep()$sweep_df
+    mdl <- input$model_type
+    current_cx <- active_complexity()
+    best_cx <- df$complexity[which.min(df$test_mse)]
+
+    if (mdl == "poly") {
+      if (current_cx < best_cx) {
+        paste0(
+          "Underfitting warning: degree ", current_cx,
+          " is below the recommended degree ", best_cx,
+          ". The model is likely too simple and may have relatively high bias."
+        )
+      } else if (current_cx > best_cx) {
+        paste0(
+          "Overfitting warning: degree ", current_cx,
+          " is above the recommended degree ", best_cx,
+          ". The model may be too flexible and may have relatively high variance."
+        )
+      } else {
+        paste0(
+          "Good choice: degree ", current_cx,
+          " matches the recommended model complexity."
+        )
+      }
+    } else {
+      if (current_cx > best_cx) {
+        paste0(
+          "Underfitting warning: k = ", current_cx,
+          " is larger than the recommended k = ", best_cx,
+          ". The model may be overly smooth and miss important structure."
+        )
+      } else if (current_cx < best_cx) {
+        paste0(
+          "Overfitting warning: k = ", current_cx,
+          " is smaller than the recommended k = ", best_cx,
+          ". The model may be too sensitive to noise."
+        )
+      } else {
+        paste0(
+          "Good choice: k = ", current_cx,
+          " matches the recommended model complexity."
+        )
+      }
+    }
+  })
+  # ── Plot: Bias-Variance curves (sweep) ───────────────────────────────────
+  output$plot_bv_curve <- renderPlot({
     req(sim_sweep())
     mdl <- input$model_type
     df  <- sim_sweep()$sweep_df
