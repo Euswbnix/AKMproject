@@ -84,7 +84,7 @@ ui <- navbarPage(
               h4(style = "margin-top: 0; margin-bottom: 8px;", "Model Recommendation"),
               textOutput("model_recommendation"),
               tags$div(style = "height: 6px;"),
-              textOutput("fit_feedback")
+              uiOutput("fit_feedback")
             ),
             hr(),
             helpText(
