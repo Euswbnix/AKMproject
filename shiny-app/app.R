@@ -4,6 +4,7 @@
 
 library(shiny)
 library(plotly)
+library(ggplot2)
 library(shinycssloaders)
 
 # ── Source modular files ────────────────────────────────────────────────────
