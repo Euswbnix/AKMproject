@@ -99,44 +99,44 @@ server <- function(input, output, session) {
       )
     }
   })
-   # ── Underfitting / overfitting feedback ────────────────────────────────
-   output$fit_feedback <- renderUI({
-  req(sim_sweep())
-
-  df <- sim_sweep()$sweep_df
-  best_idx <- which.min(df$test_mse)
-  best_cx  <- df$complexity[best_idx]
-
-  cx <- active_complexity()
-
-  status <- if (cx < best_cx) {
-    "underfit"
-  } else if (cx > best_cx) {
-    "overfit"
-  } else {
-    "good"
-  }
-
-  if (status == "good") {
-    div(
-      style = "padding:10px; background:#e6f4ea; border-left:5px solid #2e7d32; border-radius:6px;",
-      strong("Good Fit: "),
-      "Model complexity is well balanced between bias and variance."
-    )
-  } else if (status == "underfit") {
-    div(
-      style = "padding:10px; background:#fff3e0; border-left:5px solid #ef6c00; border-radius:6px;",
-      strong("Underfitting: "),
-      "Model is too simple. Consider increasing complexity."
-    )
-  } else {
-    div(
-      style = "padding:10px; background:#fdecea; border-left:5px solid #c62828; border-radius:6px;",
-      strong("Overfitting: "),
-      "Model is too complex. Variance dominates."
-    )
-  }
-})
+  # ── Underfitting / overfitting feedback ────────────────────────────────
+  output$fit_feedback <- renderUI({
+    req(sim_sweep())
+    
+    df <- sim_sweep()$sweep_df
+    best_idx <- which.min(df$test_mse)
+    best_cx  <- df$complexity[best_idx]
+    
+    cx <- active_complexity()
+    
+    status <- if (cx < best_cx) {
+      "underfit"
+    } else if (cx > best_cx) {
+      "overfit"
+    } else {
+      "good"
+    }
+    
+    if (status == "good") {
+      div(
+        style = "padding:10px; background:#e6f4ea; border-left:5px solid #2e7d32; border-radius:6px;",
+        strong("Good Fit: "),
+        "Model complexity is well balanced between bias and variance."
+      )
+    } else if (status == "underfit") {
+      div(
+        style = "padding:10px; background:#fff3e0; border-left:5px solid #ef6c00; border-radius:6px;",
+        strong("Underfitting: "),
+        "Model is too simple. Consider increasing complexity."
+      )
+    } else {
+      div(
+        style = "padding:10px; background:#fdecea; border-left:5px solid #c62828; border-radius:6px;",
+        strong("Overfitting: "),
+        "Model is too complex. Variance dominates."
+      )
+    }
+  })
   # ── Plot: Bias-Variance curves (sweep) ───────────────────────────────────
   output$plot_bv_curve <- renderPlotly({
     req(sim_sweep())
@@ -199,14 +199,17 @@ server <- function(input, output, session) {
       # Final aesthetics tweak: move legend to bottom-left to not mask labels
       theme(legend.position = "bottom", legend.justification = "left")
     
+    # Adaptive x offset: 2% of the x-axis range
+    x_range  <- max(df$eff_complexity) - min(df$eff_complexity)
+    x_offset <- x_range * 0.02
+    
     # Convert ggplot to interactive Plotly object
-    # We turn OFF the tooltip for the newly added text labels to avoid clutter
     ggplotly(p, tooltip = c("x", "text")) %>%
       layout(
         legend = list(orientation = "h", y = -0.15, x = 0),
         annotations = list(
           list(
-            x = eff + 0.3,
+            x = eff + x_offset,
             y = 0.88,
             xref = "x",
             yref = "paper",
@@ -217,7 +220,7 @@ server <- function(input, output, session) {
             yanchor = "bottom"
           ),
           list(
-            x = best_eff + 0.3,
+            x = best_eff + x_offset,
             y = 0.80,
             xref = "x",
             yref = "paper",
