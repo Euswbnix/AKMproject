@@ -1,9 +1,21 @@
 Package: AKMProject
-Title: What the Package Does (One Line, Title Case)
+Title: Bias-Variance Tradeoff Simulation for Polynomial Regression
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Authors@R: c(
+    person("Alex", "Huang", email = "euswbnix@gmail.com", role = c("aut", "cre")),
+    person("Jizheng", "Huang", email = "jizheng.huang@mail.utoronto.ca", role = "aut"),
+    person("Kerry", "Zhu", email = "zhukai16@mail.utoronto.ca", role = "aut"),
+    person("Morrison", "Xu", email = "morrison.xu@mail.utoronto.ca", role = "aut"),
+    person("Tianchen", "Ni", email = "tiancheni77@gmail.com", role = "aut"),
+    person("Anna", "Huynh", email = "annahuynhly012920@gmail.com", role = "aut"),
+    person("Victor", "Jiang", email = "victorjchess9@gmail.com", role = "aut"))
+Description: Tools and a Shiny application for exploring the bias-variance
+    tradeoff in polynomial regression. Provides functions to generate
+    synthetic regression data from smooth or wiggly true functions, fit
+    polynomial models of varying degrees, compute mean squared error, and
+    run Monte Carlo simulations to estimate squared bias and variance. The
+    accompanying Shiny app offers an interactive visualization of how
+    model complexity affects bias and variance.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
