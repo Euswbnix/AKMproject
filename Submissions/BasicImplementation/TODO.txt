@@ -1,3 +1,0 @@
-Add roxygen comments to function.R
-Implement test-function.R
-Implement my-vingnette.Rmd
