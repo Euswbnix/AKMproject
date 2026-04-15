@@ -1,7 +1,0 @@
-another group is already doing the kNN regression method; so you cannot do that. I would opt for different methods; like you already said, you're doing polynomial regression and you can keep to that method and focus on just letting the user add a polynomial degree.
-
-you should be more specific about the noise level of the error term. Is the noise level supposed to be the std/variance of the gaussian distribution? (It is not even clear what distribution you are assigning to \epsilon).
-
-(-0.1 for not being clear about the distribution of \epsilon)
-
-I am planning to apply bonus marks after the "Basic Implementation Check" checkpoint, because some students might be switching groups/topics/opting out. I have set a reminder to do this.
