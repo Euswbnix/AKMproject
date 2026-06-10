@@ -36,6 +36,3 @@ This R package and interactive Shiny application provide a comprehensive toolkit
 In accordance with the course requirements, a detailed **Generative AI Usage Statement** is included in the package vignettes.
 * **Vignette Path:** `vignettes/ai_usage_statement.Rmd`
 * **Final Update:** Includes documentation on refactoring visualizations to `plotly` and implementing asynchronous UI feedback.
-
----
-*Created for the University of Toronto - STA380 Final Project.*
